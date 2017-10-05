@@ -1,0 +1,32 @@
+#Name: Numerator
+#Info: Numerator for real time control
+#Depend: GCode
+#Type: postprocess
+
+__copyright__ = "Copyright (C) 2017 Sergey Moskovchenko - Released under terms of the AGPLv3 License"
+import re
+from Cura.util import profile
+
+with open(filename, "r") as f:
+	lines = f.readlines()
+	#lines[0]="; delete it - " + lines[0] 
+	#lines[1]="; delete it - " + lines[1]	
+
+currentLayer="no"
+maxLayer=len(lines)
+with open(filename, "w") as f:
+	for lIndex in xrange(maxLayer):
+		
+		line = lines[lIndex]	
+		f.write(line)	
+
+		if (lIndex%10)==0:
+			f.write("M117 S="+str(lIndex)+"(" +str( (maxLayer+500)//1000)+"K) L="+currentLayer+".\n")		
+		
+		#new layer detected
+		if line.startswith(';LAYER:'): 
+			currentLayer = str(line[7:].strip() )
+			# micro beep signal
+			f.write("M300 S2000 P50 ;beep \n") 
+			
+		
